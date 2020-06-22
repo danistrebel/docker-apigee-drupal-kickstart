@@ -14,15 +14,12 @@
 
 FROM drupal:8-apache
 
-ARG ADMIN_USER
-ARG ADMIN_PASS
-ARG APIGEE_USER
-ARG APIGEE_PASS
-ARG APIGEE_ORG
+ARG ADMIN_USER=admin
+ARG ADMIN_PASS=password
+ARG DB_URL=sqlite://sites/default/files/.ht.sqlite
 
 # install dependencies
-RUN apt-get update
-RUN apt-get install -y curl git ranger libpng-dev unzip vim sqlite3
+RUN apt-get update && apt-get install -y curl git ranger libpng-dev unzip vim sqlite3
 RUN docker-php-ext-install gd bcmath
 
 # install and setup drupal tools
@@ -53,7 +50,7 @@ WORKDIR /var/www/portal/web
 RUN mkdir -p libraries && curl -sSL https://github.com/swagger-api/swagger-ui/archive/v3.19.4.tar.gz -o swagger.tar.gz && tar -xvzf swagger.tar.gz && rm swagger.tar.gz  && mv swagger-ui-3.19.4 libraries/swagger_ui
 
 # perform site install
-RUN ../vendor/drush/drush/drush si apigee_devportal_kickstart --db-url=sqlite://sites/default/files/.ht.sqlite --site-name="Apigee Developer Portal" --account-name="$ADMIN_USER" --account-pass="$ADMIN_PASS" --no-interaction
+RUN ../vendor/drush/drush/drush si apigee_devportal_kickstart --db-url="$DB_URL" --site-name="Apigee Developer Portal" --account-name="$ADMIN_USER" --account-pass="$ADMIN_PASS" --no-interaction
 
 # enable dependencies
 RUN ../vendor/drush/drush/drush en rest restui basic_auth
